@@ -1,0 +1,1 @@
+How to use python-dotenv package to read .env files: https://stackoverflow.com/questions/40216311/reading-in-environment-variables-from-an-environment-file
