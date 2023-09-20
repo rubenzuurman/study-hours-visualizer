@@ -1,3 +1,4 @@
+import datetime
 import os
 import re
 
@@ -57,10 +58,41 @@ def interpret_file(filename):
     del result["misc"]
     
     # Add missing dates.
+    dates = result.keys()
+    # Reverse all dates then sort.
+    dates = sorted(["-".join(date.split("-")[::-1]) for date in dates])
+    # Check if there are missing dates.
+    new_dates = []
+    for index, date in enumerate(dates):
+        if index == 0:
+            continue
+        
+        d1 = datetime.datetime.strptime(dates[index - 1], "%Y-%m-%d")
+        d2 = datetime.datetime.strptime(dates[index], "%Y-%m-%d")
+        
+        if (d2 - d1).days > 1:
+            while d1 <= d2:
+                new_dates.append(d1.strftime("%Y-%m-%d"))
+                d1 += datetime.timedelta(days=1)
+        else:
+            new_dates.append(d1.strftime("%Y-%m-%d"))
+    # Remove duplicates.
+    new_dates = sorted(list(set(new_dates)))
+    # Reverse all dates again.
+    new_dates = ["-".join(date.split("-")[::-1]) for date in new_dates]
     
     # Add day names to dates.
+    new_dates = [datetime.datetime.strptime(date, "%d-%m-%Y").strftime("%a") + f" {date}" for date in new_dates]
     
-    return result
+    # Populate new result using new dates.
+    new_result = {}
+    for date in new_dates:
+        if date.split(" ")[1] in result.keys():
+            new_result[date] = result[date.split(" ")[1]]
+        else:
+            new_result[date] = []
+    
+    return new_result
 
 def visualize_result(result):
     # Set render parameters.

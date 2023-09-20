@@ -1,3 +1,9 @@
 How to use python-dotenv package to read .env files: https://stackoverflow.com/questions/40216311/reading-in-environment-variables-from-an-environment-file
 Python check if regex match: https://www.tutorialspoint.com/python-check-if-a-string-matches-regex-list#:~:text=The%20're'%20module%20in%20Python,match()'%20for%20each%20pattern.
 Python save pygame surface as image: https://stackoverflow.com/questions/66209365/how-to-save-pygame-scene-as-jpeg
+Color pallete: https://colorhunt.co/palette/5b0888713abe9d76c1e5cff7
+Python reverse list in place: https://www.geeksforgeeks.org/python-reversed-split-strings/
+Python string to datetime object: https://www.digitalocean.com/community/tutorials/python-string-to-datetime-strptime
+Python add days to a datetime object: https://stackoverflow.com/questions/6871016/adding-days-to-a-date-in-python
+Python datetime strftime: https://www.programiz.com/python-programming/datetime/strftime
+Python datetime get weekday name (and format codes in general): https://www.programiz.com/python-programming/datetime/strftime#format-code
