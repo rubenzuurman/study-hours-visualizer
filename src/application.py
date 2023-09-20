@@ -97,9 +97,11 @@ def interpret_file(filename):
 def visualize_result(result):
     # Set render parameters.
     column_width = 200
-    font_size = column_width // 3
-    column_height = 1000
+    column_height = 1440
     top_bar_height = 40
+    top_bar_font_size = 16
+    left_bar_width = 50
+    left_bar_font_size = 11
     
     # Set colors.
     background_color = (91, 8, 136)
@@ -112,30 +114,46 @@ def visualize_result(result):
     pygame.font.init()
     
     # Initialize font.
-    font = pygame.font.SysFont("Courier New", 16)
+    top_bar_font  = pygame.font.SysFont("Courier New", top_bar_font_size)
+    left_bar_font = pygame.font.SysFont("Courier New", left_bar_font_size)
     
     # Create display.
-    display = pygame.display.set_mode((column_width * len(result.keys()), column_height + top_bar_height))
+    display = pygame.display.set_mode((column_width * len(result.keys()) + left_bar_width, column_height + top_bar_height))
     
-    # Render background and top bar background.
-    pygame.draw.rect(display, top_bar_background_color, (0, 0, column_width * len(result.keys()), top_bar_height))
-    pygame.draw.rect(display, background_color, (0, top_bar_height, column_width * len(result.keys()), column_height))
+    # Render top bar background, left bar background, and background.
+    pygame.draw.rect(display, top_bar_background_color, (0, 0, left_bar_width, top_bar_height + column_height))
+    pygame.draw.rect(display, top_bar_background_color, (left_bar_width, 0, column_width * len(result.keys()), top_bar_height))
+    pygame.draw.rect(display, background_color, (left_bar_width, top_bar_height, column_width * len(result.keys()), column_height))
     
     # Render hours to the left of the graph.
+    for hour in range(24):
+        text_surface = left_bar_font.render(f"{hour}:00 ", False, text_color)
+        text_y = top_bar_height + column_height * (hour * 60) / 1440 - (text_surface.get_height() / 2)
+        display.blit(text_surface, (left_bar_width - text_surface.get_width(), text_y))
     
     # Render calendar.
     for index, (date, times) in enumerate(result.items()):
         # Render date in center of column.
-        text_surface = font.render(date, False, text_color)
-        display.blit(text_surface, (((index + 0.5) * column_width) - (text_surface.get_width() / 2), (top_bar_height - text_surface.get_height()) / 2))
+        text_surface = top_bar_font.render(date, False, text_color)
+        display.blit(text_surface, (left_bar_width + ((index + 0.5) * column_width) - (text_surface.get_width() / 2), (top_bar_height - text_surface.get_height()) / 2))
         
         # Render blocks for study hours.
         for time in times:
-            block_left = index * column_width
+            block_left = left_bar_width + index * column_width
             block_top = top_bar_height + (column_height / 1440) * time[0]
             block_width = column_width
             block_height = (column_height / 1440) * (time[1] - time[0])
             pygame.draw.rect(display, block_color, (block_left, block_top, block_width, block_height))
+    
+    # Draw horizontal lines at each hour.
+    for hour in range(1, 24):
+        hour_y = top_bar_height + column_height * (hour * 60) / 1440
+        pygame.draw.line(display, top_bar_background_color, (left_bar_width, hour_y), (left_bar_width + column_width * len(result.keys()), hour_y))
+    
+    # Draw vertical lines at each day.
+    for day in range(1, len(result.keys())):
+        day_x = left_bar_width + column_width * day
+        pygame.draw.line(display, top_bar_background_color, (day_x, top_bar_height), (day_x, top_bar_height + column_height))
     
     # Save image.
     pygame.image.save(display, "image.png")
