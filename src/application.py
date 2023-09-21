@@ -101,6 +101,9 @@ def visualize_result(result, color_palette):
     left_bar_width = 50
     left_bar_font_size = 11
     
+    top_bar_y = 0
+    bottom_bar_y = top_bar_height + column_height
+    
     # Get colors from color palette.
     background_color = color_palette[0]
     top_bar_background_color = color_palette[1]
@@ -125,18 +128,25 @@ def visualize_result(result, color_palette):
             week_separation_total_width += column_width / 2
     
     # Create display.
-    display = pygame.display.set_mode((left_bar_width + column_width * len(result.keys()) + week_separation_total_width, column_height + top_bar_height))
+    display = pygame.display.set_mode((left_bar_width + column_width * len(result.keys()) + week_separation_total_width + left_bar_width, top_bar_height + column_height + top_bar_height))
     
-    # Render top bar background, left bar background, and background.
-    pygame.draw.rect(display, top_bar_background_color, (left_bar_width, 0, column_width * len(result.keys()) + week_separation_total_width, top_bar_height))
-    pygame.draw.rect(display, top_bar_background_color, (0, 0, left_bar_width, top_bar_height + column_height))
-    pygame.draw.rect(display, background_color, (left_bar_width, top_bar_height, column_width * len(result.keys()) + week_separation_total_width, column_height))
+    # Render background across entire display.
+    pygame.draw.rect(display, background_color, (0, 0, left_bar_width + column_width * len(result.keys()) + week_separation_total_width + left_bar_width, top_bar_height + column_height + top_bar_height))
     
-    # Render hours to the left of the graph.
-    for hour in range(24):
-        text_surface = left_bar_font.render(f"{hour}:00 ", False, text_color)
+    # Render top bar background and bottom bar background.
+    pygame.draw.rect(display, top_bar_background_color, (left_bar_width, top_bar_y, column_width * len(result.keys()) + week_separation_total_width, top_bar_height))
+    pygame.draw.rect(display, top_bar_background_color, (left_bar_width, bottom_bar_y, column_width * len(result.keys()) + week_separation_total_width, top_bar_height))
+    
+    # Render left bar background and right bar background.
+    pygame.draw.rect(display, top_bar_background_color, (0, 0, left_bar_width, top_bar_height + column_height + top_bar_height))
+    pygame.draw.rect(display, top_bar_background_color, (left_bar_width + column_width * len(result.keys()) + week_separation_total_width, 0, left_bar_width, top_bar_height + column_height + top_bar_height))
+    
+    # Render hours to the left and to the right of the graph.
+    for hour in range(25):
+        text_surface = left_bar_font.render(f" {hour}:00 ", False, text_color)
         text_y = top_bar_height + column_height * (hour * 60) / 1440 - (text_surface.get_height() / 2)
         display.blit(text_surface, (left_bar_width - text_surface.get_width(), text_y))
+        display.blit(text_surface, (left_bar_width + column_width * len(result.keys()) + week_separation_total_width, text_y))
     
     # Render calendar.
     week_separation_distance = 0 # This distance gets incremented by column_width / 2 every monday when index != 0.
