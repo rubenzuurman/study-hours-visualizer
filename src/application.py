@@ -117,13 +117,22 @@ def visualize_result(result, color_palette):
     top_bar_font  = pygame.font.SysFont("Courier New", top_bar_font_size)
     left_bar_font = pygame.font.SysFont("Courier New", left_bar_font_size)
     
+    # Calculate extra width due to week separations (half a column width before every monday that is not the first day).
+    week_separation_total_width = 0
+    for index, date in enumerate(result.keys()):
+        if index == 0:
+            continue
+        
+        if date.startswith("Mon"):
+            week_separation_total_width += column_width / 2
+    
     # Create display.
-    display = pygame.display.set_mode((column_width * len(result.keys()) + left_bar_width, column_height + top_bar_height))
+    display = pygame.display.set_mode((left_bar_width + column_width * len(result.keys()) + week_separation_total_width, column_height + top_bar_height))
     
     # Render top bar background, left bar background, and background.
+    pygame.draw.rect(display, top_bar_background_color, (left_bar_width, 0, column_width * len(result.keys()) + week_separation_total_width, top_bar_height))
     pygame.draw.rect(display, top_bar_background_color, (0, 0, left_bar_width, top_bar_height + column_height))
-    pygame.draw.rect(display, top_bar_background_color, (left_bar_width, 0, column_width * len(result.keys()), top_bar_height))
-    pygame.draw.rect(display, background_color, (left_bar_width, top_bar_height, column_width * len(result.keys()), column_height))
+    pygame.draw.rect(display, background_color, (left_bar_width, top_bar_height, column_width * len(result.keys()) + week_separation_total_width, column_height))
     
     # Render hours to the left of the graph.
     for hour in range(24):
@@ -132,14 +141,20 @@ def visualize_result(result, color_palette):
         display.blit(text_surface, (left_bar_width - text_surface.get_width(), text_y))
     
     # Render calendar.
+    week_separation_distance = 0 # This distance gets incremented by column_width / 2 every monday when index != 0.
     for index, (date, times) in enumerate(result.items()):
+        # Increment week separation distance if needed.
+        if not index == 0:
+            if date.startswith("Mon"):
+                week_separation_distance += column_width / 2
+        
         # Render date in center of column.
         text_surface = top_bar_font.render(date, False, text_color)
-        display.blit(text_surface, (left_bar_width + ((index + 0.5) * column_width) - (text_surface.get_width() / 2), (top_bar_height - text_surface.get_height()) / 2))
+        display.blit(text_surface, (left_bar_width + ((index + 0.5) * column_width) + week_separation_distance - (text_surface.get_width() / 2), (top_bar_height - text_surface.get_height()) / 2))
         
         # Render blocks for study hours.
         for time in times:
-            block_left = left_bar_width + index * column_width
+            block_left = left_bar_width + index * column_width + week_separation_distance
             block_top = top_bar_height + (column_height / 1440) * time[0]
             block_width = column_width
             block_height = (column_height / 1440) * (time[1] - time[0])
@@ -148,11 +163,26 @@ def visualize_result(result, color_palette):
     # Draw horizontal lines at each hour.
     for hour in range(1, 24):
         hour_y = top_bar_height + column_height * (hour * 60) / 1440
-        pygame.draw.line(display, top_bar_background_color, (left_bar_width, hour_y), (left_bar_width + column_width * len(result.keys()), hour_y))
+        pygame.draw.line(display, top_bar_background_color, (left_bar_width, hour_y), (left_bar_width + column_width * len(result.keys()) + week_separation_total_width, hour_y))
     
     # Draw vertical lines at each day.
-    for day in range(1, len(result.keys())):
-        day_x = left_bar_width + column_width * day
+    week_separation_distance = 0
+    for index, date in enumerate(result.keys()):
+        if index == 0:
+            continue
+        
+        # If this is a monday, draw a line to end the week and increment the week separation distance.
+        if date.startswith("Mon"):
+            # Draw line to end the week.
+            day_x = left_bar_width + column_width * index + week_separation_distance
+            pygame.draw.line(display, top_bar_background_color, (day_x, top_bar_height), (day_x, top_bar_height + column_height))
+            
+            # Draw vertical bar between sunday and monday to override the horizontal lines and create a clearer separation between weeks.
+            pygame.draw.rect(display, background_color, (day_x + 1, top_bar_height, column_width / 2 - 1, column_height))
+            
+            week_separation_distance += column_width / 2
+        
+        day_x = left_bar_width + column_width * index + week_separation_distance
         pygame.draw.line(display, top_bar_background_color, (day_x, top_bar_height), (day_x, top_bar_height + column_height))
     
     # Save image.
