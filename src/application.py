@@ -21,7 +21,7 @@ def interpret_file(filename):
     time_pattern = r"^\d\d\.\d\d-\d\d\.\d\d$"
     
     # Parse lines to dictionary.
-    result = {"misc": []}
+    result = {}
     current_date = None
     temp_list = []
     for line in lines:
@@ -54,9 +54,6 @@ def interpret_file(filename):
             new_value.append((start_minute, end_minute))
         result[key] = new_value
     
-    # Remove misc entry.
-    del result["misc"]
-    
     # Add missing dates.
     dates = result.keys()
     # Reverse all dates then sort.
@@ -76,6 +73,7 @@ def interpret_file(filename):
                 d1 += datetime.timedelta(days=1)
         else:
             new_dates.append(d1.strftime("%Y-%m-%d"))
+            new_dates.append(d2.strftime("%Y-%m-%d"))
     # Remove duplicates.
     new_dates = sorted(list(set(new_dates)))
     # Reverse all dates again.
