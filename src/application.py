@@ -94,7 +94,7 @@ def interpret_file(filename):
     
     return new_result
 
-def visualize_result(result):
+def visualize_result(result, color_palette):
     # Set render parameters.
     column_width = 200
     column_height = 1440
@@ -103,11 +103,11 @@ def visualize_result(result):
     left_bar_width = 50
     left_bar_font_size = 11
     
-    # Set colors.
-    background_color = (91, 8, 136)
-    top_bar_background_color = (113, 58, 190)
-    block_color = (157, 118, 193)
-    text_color = (229, 207, 247)
+    # Get colors from color palette.
+    background_color = color_palette[0]
+    top_bar_background_color = color_palette[1]
+    block_color = color_palette[2]
+    text_color = color_palette[3]
     
     # Initialize pygame.
     pygame.init()
@@ -161,17 +161,36 @@ def visualize_result(result):
     # Print message.
     print("Output saved to `image.png`.")
 
+def load_color_palette(palette_name):
+    # Check if color palette exists. If not, default to marine blue.
+    if not (palette_name in ["COLOR_PALETTE_PURPLE", "COLOR_PALETTE_PURPLE_DARK", "COLOR_PALETTE_MARINE", "COLOR_PALETTE_MARINE_DARK", "COLOR_PALETTE_MARINE_BLUE"]):
+        print(f"Color palette name is invalid `{palette_name}`, defaulting to `COLOR_PALETTE_MARINE_BLUE`.")
+        palette_name = "COLOR_PALETTE_MARINE_BLUE"
+    
+    # Load color palette from dotenv file.
+    color_palette = os.getenv(palette_name)
+    
+    # Split by comma and strip away any non integer characters.
+    numbers = [int(re.sub(r"\D", "", number)) for number in color_palette.split(",")]
+    
+    # Join every three integers into a tuple.
+    return [tuple(numbers[i:i+3]) for i in range(0, len(numbers), 3)]
+
 def main():
+    # Load dotenv file.
+    dotenv.load_dotenv()
+    
     # Print welcome prompt.
     print("Welcome to the study hours file interpreter and visualizer.")
     
     # Load filename from .env file and interpret file.
-    dotenv.load_dotenv()
     filename = os.getenv("DATAPATH")
     result = interpret_file(filename)
     
-    # Visualize result.
-    visualize_result(result)
+    # Load color palette and visualize result.
+    color_palette_name = "COLOR_PALETTE_MARINE_BLUE"
+    color_palette = load_color_palette(color_palette_name)
+    visualize_result(result, color_palette)
 
 if __name__ == "__main__":
     main()

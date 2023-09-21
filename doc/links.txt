@@ -1,9 +1,15 @@
 How to use python-dotenv package to read .env files: https://stackoverflow.com/questions/40216311/reading-in-environment-variables-from-an-environment-file
 Python check if regex match: https://www.tutorialspoint.com/python-check-if-a-string-matches-regex-list#:~:text=The%20're'%20module%20in%20Python,match()'%20for%20each%20pattern.
 Python save pygame surface as image: https://stackoverflow.com/questions/66209365/how-to-save-pygame-scene-as-jpeg
-Color pallete: https://colorhunt.co/palette/5b0888713abe9d76c1e5cff7
+Color palette purple: https://colorhunt.co/palette/5b0888713abe9d76c1e5cff7
 Python reverse list in place: https://www.geeksforgeeks.org/python-reversed-split-strings/
 Python string to datetime object: https://www.digitalocean.com/community/tutorials/python-string-to-datetime-strptime
 Python add days to a datetime object: https://stackoverflow.com/questions/6871016/adding-days-to-a-date-in-python
 Python datetime strftime: https://www.programiz.com/python-programming/datetime/strftime
 Python datetime get weekday name (and format codes in general): https://www.programiz.com/python-programming/datetime/strftime#format-code
+Python store list in dotenv file: https://stackoverflow.com/questions/65969601/how-to-define-lists-in-python-dot-env-file
+Python remove non-numeric characters from string: https://stackoverflow.com/questions/1249388/removing-all-non-numeric-characters-from-string-in-python
+Color palette marine: https://colorhunt.co/palette/053b50176b8764ccc5eeeeee
+Color palette marine dark: https://colorhunt.co/palette/1a374d4068826998abb1d0e0
+Color palette purple dark: https://colorhunt.co/palette/371b584c35755b4b8a7858a6
+Color palette marine blue: https://colorhunt.co/palette/1b262c0f4c753282b8bbe1fa
