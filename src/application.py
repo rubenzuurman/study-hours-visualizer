@@ -156,9 +156,14 @@ def visualize_result(result, color_palette):
             if date.startswith("Mon"):
                 week_separation_distance += column_width / 2
         
-        # Render date in center of column.
+        # Render date in center of column in top bar.
         text_surface = top_bar_font.render(date, False, text_color)
-        display.blit(text_surface, (left_bar_width + ((index + 0.5) * column_width) + week_separation_distance - (text_surface.get_width() / 2), (top_bar_height - text_surface.get_height()) / 2))
+        display.blit(text_surface, (left_bar_width + ((index + 0.5) * column_width) + week_separation_distance - (text_surface.get_width() / 2), top_bar_y + (top_bar_height - text_surface.get_height()) / 2))
+        
+        # Render total number of minutes in center of column in bottom bar.
+        number_of_minutes = sum([time[1] - time[0] for time in times])
+        text_surface = top_bar_font.render(f"{number_of_minutes} min", False, text_color)
+        display.blit(text_surface, (left_bar_width + ((index + 0.5) * column_width) + week_separation_distance - (text_surface.get_width() / 2), bottom_bar_y + (top_bar_height - text_surface.get_height()) / 2))
         
         # Render blocks for study hours.
         for time in times:
