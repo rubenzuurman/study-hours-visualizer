@@ -5,20 +5,32 @@ import sys
 
 import dotenv
 from loguru import logger
+
+# Hide pygame welcome message and then import pygame.
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "True"
 import pygame
 
 LOGURU_FORMAT = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <level>{message}</level>"
 
+def parse_filename(filename):
+    # Replace `$CWD$` with the current working directory if present.
+    if filename.startswith("$CWD$"):
+        filename = filename[5:]
+        while filename.startswith("\\") or filename.startswith("/"):
+            filename = filename[1:]
+        filename = os.path.join(os.getcwd(), filename)
+    return filename
+
 @logger.catch
-def interpret_file(filename):
+def interpret_file(datapath):
     # Check if the file exists.
-    if not os.path.isfile(filename):
-        logger.error(f"Unable to locate `{filename}`. Consider updating the .env file `DATAPATH` entry to point to a valid location.")
+    if not os.path.isfile(datapath):
+        logger.error(f"Unable to locate `{datapath}`. Consider updating the `DATAPATH` entry in the .env file to point to a valid location.")
         return None
     
     # Read file contents.
     lines = []
-    with open(filename, "r") as file:
+    with open(datapath, "r") as file:
         lines = file.readlines()
     
     # Setup regex patterns.
@@ -95,10 +107,11 @@ def interpret_file(filename):
         else:
             new_result[date] = []
     
+    logger.success(f"Data read from `{datapath}`.")
     return new_result
 
 @logger.catch
-def visualize_result(result, color_palette):
+def visualize_result(result, color_palette, savepath):
     # Set render parameters.
     column_width = 200
     column_height = 1440
@@ -205,10 +218,10 @@ def visualize_result(result, color_palette):
         pygame.draw.line(display, top_bar_background_color, (day_x, top_bar_height), (day_x, top_bar_height + column_height))
     
     # Save image.
-    pygame.image.save(display, "image.png")
+    pygame.image.save(display, savepath)
     
     # Print message.
-    logger.success("Output saved to `image.png`.")
+    logger.success(f"Output saved to `{savepath}`.")
 
 @logger.catch
 def load_color_palette(palette_name):
@@ -238,15 +251,16 @@ def main():
     logger.info("Welcome to the study hours file interpreter and visualizer.")
     
     # Load filename from .env file and interpret file.
-    filename = os.getenv("DATAPATH")
-    result = interpret_file(filename)
+    datapath = parse_filename(os.getenv("DATAPATH"))
+    result = interpret_file(datapath)
     if result is None:
         return
     
     # Load color palette and visualize result.
     color_palette_name = "COLOR_PALETTE_MARINE_BLUE"
     color_palette = load_color_palette(color_palette_name)
-    visualize_result(result, color_palette)
+    savepath = parse_filename(os.getenv("SAVEPATH"))
+    visualize_result(result, color_palette, savepath)
 
 if __name__ == "__main__":
     main()
