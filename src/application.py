@@ -1,15 +1,20 @@
 import datetime
 import os
 import re
+import sys
 
 import dotenv
+from loguru import logger
 import pygame
 
+LOGURU_FORMAT = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <level>{message}</level>"
+
+@logger.catch
 def interpret_file(filename):
     # Check if the file exists.
     if not os.path.isfile(filename):
-        print(f"Unable to locate `{filename}`. Consider updating the .env file to point to a valid location.")
-        return {}
+        logger.error(f"Unable to locate `{filename}`. Consider updating the .env file `DATAPATH` entry to point to a valid location.")
+        return None
     
     # Read file contents.
     lines = []
@@ -92,6 +97,7 @@ def interpret_file(filename):
     
     return new_result
 
+@logger.catch
 def visualize_result(result, color_palette):
     # Set render parameters.
     column_width = 200
@@ -202,12 +208,13 @@ def visualize_result(result, color_palette):
     pygame.image.save(display, "image.png")
     
     # Print message.
-    print("Output saved to `image.png`.")
+    logger.success("Output saved to `image.png`.")
 
+@logger.catch
 def load_color_palette(palette_name):
     # Check if color palette exists. If not, default to marine blue.
     if not (palette_name in ["COLOR_PALETTE_PURPLE", "COLOR_PALETTE_PURPLE_DARK", "COLOR_PALETTE_MARINE", "COLOR_PALETTE_MARINE_DARK", "COLOR_PALETTE_MARINE_BLUE"]):
-        print(f"Color palette name is invalid `{palette_name}`, defaulting to `COLOR_PALETTE_MARINE_BLUE`.")
+        logger.warning(f"Color palette name is invalid `{palette_name}`, defaulting to `COLOR_PALETTE_MARINE_BLUE`.")
         palette_name = "COLOR_PALETTE_MARINE_BLUE"
     
     # Load color palette from dotenv file.
@@ -220,15 +227,21 @@ def load_color_palette(palette_name):
     return [tuple(numbers[i:i+3]) for i in range(0, len(numbers), 3)]
 
 def main():
+    # Initialize logger.
+    logger.remove() # Remove default logger.
+    logger.add(sys.stderr, colorize=True, format=LOGURU_FORMAT)
+    
     # Load dotenv file.
     dotenv.load_dotenv()
     
     # Print welcome prompt.
-    print("Welcome to the study hours file interpreter and visualizer.")
+    logger.info("Welcome to the study hours file interpreter and visualizer.")
     
     # Load filename from .env file and interpret file.
     filename = os.getenv("DATAPATH")
     result = interpret_file(filename)
+    if result is None:
+        return
     
     # Load color palette and visualize result.
     color_palette_name = "COLOR_PALETTE_MARINE_BLUE"

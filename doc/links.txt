@@ -13,3 +13,4 @@ Color palette marine: https://colorhunt.co/palette/053b50176b8764ccc5eeeeee
 Color palette marine dark: https://colorhunt.co/palette/1a374d4068826998abb1d0e0
 Color palette purple dark: https://colorhunt.co/palette/371b584c35755b4b8a7858a6
 Color palette marine blue: https://colorhunt.co/palette/1b262c0f4c753282b8bbe1fa
+Loguru default format location (currently (23-09-2023 15.52) at line 31): https://github.com/Delgan/loguru/blob/master/loguru/_defaults.py
