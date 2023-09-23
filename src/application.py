@@ -128,7 +128,7 @@ def visualize_result(result, color_palette):
             week_separation_total_width += column_width / 2
     
     # Create display.
-    display = pygame.display.set_mode((left_bar_width + column_width * len(result.keys()) + week_separation_total_width + left_bar_width, top_bar_height + column_height + top_bar_height))
+    display = pygame.Surface((left_bar_width + column_width * len(result.keys()) + week_separation_total_width + left_bar_width, top_bar_height + column_height + top_bar_height))
     
     # Render background across entire display.
     pygame.draw.rect(display, background_color, (0, 0, left_bar_width + column_width * len(result.keys()) + week_separation_total_width + left_bar_width, top_bar_height + column_height + top_bar_height))
