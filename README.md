@@ -5,7 +5,7 @@
 2. Create a new python virtual environment in the repository folder and activate it.
 3. Install the required dependencies by running the command `pip install -r requirements.txt`.
 4. Update the `DATAPATH` entry in the `.env` file to point to your [study hours file](#study-hour-file-syntax).
-5. (Optional) Update the `SAVEPATH` entry in the `.env` file to point to a valid location. By default the output image is saved as `image.png` in the repository folder.
+5. (Optional) Update the `IMAGEPATH` and `STATSPATH` entries in the `.env` file to point to valid locations. By default the output image is saved as `image.png` and the statistics file is saved as `stats.json`, both in the repository folder.
 6. Execute the application by running the command `python -u src/application.py`.
 
 ## Study Hours File Syntax
@@ -31,7 +31,7 @@ If a date specification is encountered multiple times, only the last section of 
 
 ## Environment Variables
 ### Paths
-Environment variables are stored in an environment file called `.env`. The `DATAPATH` entry controls which file is interpreted as the study hours file. The `SAVEPATH` entry controls where the generated image is saved. Both of these variables can use the `$CWD$` macro to specify paths relative to the execution path of the application (which is probably the repository folder). Slashes are permitted after the `$CWD$` macro but are ignored, slashes can be added to make the path more readable. The following is an example of a path without the macro:
+Environment variables are stored in an environment file called `.env`. The `DATAPATH` entry controls which file is interpreted as the study hours file. The `IMAGEPATH` entry controls where the generated image is saved. The `STATSPATH` entry controls where the generated statistics file is saved. All of the preceding variables can use the `$CWD$` macro to specify paths relative to the execution path of the application (which is probably the repository folder). Slashes are permitted after the `$CWD$` macro but are ignored, slashes can be added to make the path more readable. The following is an example of a path without the macro:
 
 ```
 "C:\repo\study_hours_file.txt"

@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import re
 import sys
@@ -111,7 +112,7 @@ def interpret_file(datapath):
     return new_result
 
 @logger.catch
-def visualize_result(result, color_palette, savepath):
+def visualize_result(result, color_palette, imagepath):
     # Set render parameters.
     column_width = 200
     column_height = 1440
@@ -218,10 +219,10 @@ def visualize_result(result, color_palette, savepath):
         pygame.draw.line(display, top_bar_background_color, (day_x, top_bar_height), (day_x, top_bar_height + column_height))
     
     # Save image.
-    pygame.image.save(display, savepath)
+    pygame.image.save(display, imagepath)
     
     # Print message.
-    logger.success(f"Output saved to `{savepath}`.")
+    logger.success(f"Output image saved to `{imagepath}`.")
 
 @logger.catch
 def load_color_palette(palette_name):
@@ -238,6 +239,62 @@ def load_color_palette(palette_name):
     
     # Join every three integers into a tuple.
     return [tuple(numbers[i:i+3]) for i in range(0, len(numbers), 3)]
+
+@logger.catch
+def generate_statistics(result, statspath):
+    # Prepend result until the start date is a monday.
+    if len(result) == 0:
+        first_date = ""
+    else:
+        first_date = list(result.keys())[0]
+    while not first_date.startswith("Mon ") and len(result) > 0:
+        datetime_obj = datetime.datetime.strptime(first_date, "%a %d-%m-%Y")
+        datetime_obj -= datetime.timedelta(days=1)
+        new_result = {}
+        new_result[datetime_obj.strftime("%a %d-%m-%Y")] = []
+        for k, v in result.items():
+            new_result[k] = v
+        result = new_result
+        first_date = list(result.keys())[0]
+    
+    # Create dictionary containing
+    #   the date of the monday at the start of the week (dictionary key)
+    #   a dictionary containing statistics of the week (dictionary value)
+    data_dict = {}
+    active_week = ""
+    for date, data in result.items():
+        if date.startswith("Mon "):
+            active_week = "Week of " + date
+            data_dict[active_week] = {"total_minutes": 0, "active_days": 0, "total_days": 0}
+        if len(data) > 0:
+            data_dict[active_week]["active_days"] += 1
+        data_dict[active_week]["total_days"] += 1
+        for timeslot in data:
+            data_dict[active_week]["total_minutes"] += timeslot[1] - timeslot[0]
+    for date, weekdata in data_dict.items():
+        weekdata["average_per_day"] = weekdata["total_minutes"] / (weekdata["total_days"] if weekdata["total_days"] > 0 else 1)
+        weekdata["average_per_active_day"] = weekdata["total_minutes"] / (weekdata["active_days"] if weekdata["active_days"] > 0 else 1)
+    
+    # Calculate total minutes and average minutes per day over all time.
+    active_days = sum([weekdata["active_days"] for weekdata in data_dict.values()])
+    total_days = sum([weekdata["total_days"] for weekdata in data_dict.values()])
+    total_minutes = sum([weekdata["total_minutes"] for weekdata in data_dict.values()])
+    average_minutes_per_active_day = total_minutes / (active_days if active_days > 0 else 1)
+    average_minutes_per_day = total_minutes / (total_days if total_days > 0 else 1)
+    
+    # Add all time statistics to data dictionary.
+    data_dict["active_days"] = active_days
+    data_dict["total_days"] = total_days
+    data_dict["total_minutes"] = total_minutes
+    data_dict["average_minutes_per_active_day"] = average_minutes_per_active_day
+    data_dict["average_minutes_per_day"] = average_minutes_per_day
+    
+    # Save statistics to file as json.
+    with open(statspath, "w") as file:
+        file.write(json.dumps(data_dict, indent=4))
+    
+    # Print message.
+    logger.success(f"Statistics saved to `{statspath}`.")
 
 def main():
     # Initialize logger.
@@ -259,8 +316,12 @@ def main():
     # Load color palette and visualize result.
     color_palette_name = "COLOR_PALETTE_MARINE_BLUE"
     color_palette = load_color_palette(color_palette_name)
-    savepath = parse_filename(os.getenv("SAVEPATH"))
-    visualize_result(result, color_palette, savepath)
+    imagepath = parse_filename(os.getenv("IMAGEPATH"))
+    visualize_result(result, color_palette, imagepath)
+    
+    # Generate statistics file.
+    statspath = parse_filename(os.getenv("STATSPATH"))
+    generate_statistics(result, statspath)
 
 if __name__ == "__main__":
     main()
